@@ -34,6 +34,9 @@ public class Player : MonoBehaviour
     private Vector3 verticalTargetPosition;
     private Vector3 boxColliderSize;
     private UIManager uiManager;
+    private int coins;
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -140,6 +143,17 @@ public class Player : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other)
     {
+
+        if ( other.CompareTag("Coin"))
+        {
+            coins++;
+            uiManager.UpdateCoins(coins);
+            other.transform.parent.gameObject.SetActive(false);
+        }
+
+
+
+
         if (invincible)
             return;
         if(other.CompareTag("Obstacles"))
