@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -135,7 +135,7 @@ public class Player : MonoBehaviour
             anim.SetFloat("JumpSpeed", speed / slideLength);
             anim.SetBool("Sliding", true) ;
             Vector3 newSize = boxCollider.size;
-            newSize.y = newSize.y / 2;
+            newSize.y = newSize.y / 6;
             boxCollider.size = newSize;
             sliding = true;
         }
