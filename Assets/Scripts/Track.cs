@@ -79,7 +79,8 @@ public class Track : MonoBehaviour
     {
         if(other.CompareTag("Player"))
             {
-                transform.position = new Vector3(0, 0, transform.position.z + (32 * 2));
+            other.GetComponent<Player>().IncreaseSpeed();
+            transform.position = new Vector3(0, 0, transform.position.z + (32 * 2));
             PositionateObstacles();
             PositionateCoins();
             }

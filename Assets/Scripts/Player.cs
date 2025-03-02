@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -13,8 +14,8 @@ public class Player : MonoBehaviour
     public float maxSpeed = 30f;
     static int blinkingValue;
     public float invincibleTime;
-    public GameObject model;
-
+    //public GameObject model;
+    public List<GameObject> models;
 
     private bool jumping=false;
     private float jumpStart;
@@ -22,7 +23,7 @@ public class Player : MonoBehaviour
     private float slideStart;
     private int currentLife;
     private bool invincible = false;
-
+    private float score;
 
     
 
@@ -52,6 +53,9 @@ public class Player : MonoBehaviour
         // Update is called once per frame
         void Update ()
         {
+            score += Time.deltaTime * speed;
+            uiManager.UpdateScore((int)score);
+
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 ChangeLane(-1);
@@ -165,7 +169,10 @@ public class Player : MonoBehaviour
             speed = 0;
             if (currentLife <=0)
             {
-                //game over
+                speed = 0;
+                anim.SetBool("Dead", true);
+                uiManager.gameOverPanel.SetActive(true);
+                Invoke("CallMenu", 2f);   
             }
             else
             {
@@ -179,29 +186,52 @@ public class Player : MonoBehaviour
     {
         invincible = true;
         float timer = 0;
-        float currentBlink = 1f;
-        float lastBlink = 0f;
         float blinkPeriod = 0.1f;
+        float lastBlink = 0f;
         bool enabled = false;
-        yield return new WaitForSeconds(1f); 
+
+        yield return new WaitForSeconds(1f);
         speed = minSpeed;
-        while (timer< time && invincible)
+
+        while (timer < time && invincible)
         {
-            model.SetActive(enabled);
-            //Shader.SetGlobalFloat(blinkingValue, currentBlink);
+            // ✅ Lặp qua tất cả các model và bật/tắt chúng
+            foreach (GameObject obj in models)
+            {
+                if (obj != null) obj.SetActive(enabled);
+            }
+
             yield return null;
             timer += Time.deltaTime;
             lastBlink += Time.deltaTime;
-            if(blinkPeriod < lastBlink)
+
+            if (lastBlink >= blinkPeriod)
             {
                 lastBlink = 0;
-                currentBlink = 1f - currentBlink;
                 enabled = !enabled;
             }
-
         }
-        model.SetActive(true);
-        //Shader.SetGlobalFloat (blinkingValue,0);
+
+        // ✅ Bật lại tất cả các model
+        foreach (GameObject obj in models)
+        {
+            if (obj != null) obj.SetActive(true);
+        }
+
         invincible = false;
+    }
+
+    void CallMenu()
+    {
+        GameManager.gm.EndRun();
+    }
+
+    public void IncreaseSpeed()
+    {
+        speed *= 1.15f;
+        if (speed >= maxSpeed)
+        {
+            speed = maxSpeed;
+        }
     }
 }
