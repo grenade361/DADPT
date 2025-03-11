@@ -18,12 +18,15 @@ public class Player : MonoBehaviour
     public List<GameObject> models;
 
     private bool jumping=false;
+    private float jumpTime;
+    private float adjustedJumpHeight;
     private float jumpStart;
     private bool sliding = false;
     private float slideStart;
     private int currentLife;
     private bool invincible = false;
-    private float score;
+    [HideInInspector]
+    public float score;
 
     
 
@@ -35,7 +38,8 @@ public class Player : MonoBehaviour
     private Vector3 verticalTargetPosition;
     private Vector3 boxColliderSize;
     private UIManager uiManager;
-    private int coins;
+    [HideInInspector]
+    public int coins;
 
 
     // Start is called before the first frame update
@@ -73,22 +77,27 @@ public class Player : MonoBehaviour
                 Slide();
             }
 
-            if (jumping)
-            {
-                float ratio = (transform.position.z - jumpStart) / jumpLength;
-                if (ratio >= 1f)
-                {
-                    jumping = false;
-                    anim.SetBool("Jumping", false);
-                }
-                else
-                {
-                    verticalTargetPosition.y = Mathf.Sin(ratio * Mathf.PI) * jumpHeight;
+        if (jumping)
+        {
+            float ratio = 1f - ((jumpEndTime - Time.time) / jumpDuration); // Tỉ lệ thời gian đã nhảy
 
-                }
+            if (ratio >= 1f)
+            {
+                jumping = false;
+                anim.SetBool("Jumping", false);
             }
             else
             {
+                // Sử dụng parabol để tạo đường cong mượt
+                verticalTargetPosition.y = Mathf.Sin(ratio * Mathf.PI) * jumpHeight;
+            }
+        }
+
+
+
+
+        else
+        {
                 verticalTargetPosition.y = Mathf.MoveTowards(verticalTargetPosition.y, 0, 5 * Time.deltaTime);
             }
 
@@ -120,16 +129,22 @@ public class Player : MonoBehaviour
         currentLane = targetLane;
         verticalTargetPosition = new Vector3((currentLane - 1) * 2 , 0 , 0);
     }
+    public float jumpDuration = 1.0f; // Thời gian nhảy cố định (giây)
+    private float jumpEndTime;
+
     void Jump()
     {
         if (!jumping)
         {
             jumpStart = transform.position.z;
-            anim.SetFloat("JumpSpeed", speed / jumpLength);
+            jumpEndTime = Time.time + jumpDuration; // Cố định thời gian kết thúc nhảy
             anim.SetBool("Jumping", true);
             jumping = true;
         }
     }
+
+
+
 
     void Slide()
     {
@@ -228,7 +243,7 @@ public class Player : MonoBehaviour
 
     public void IncreaseSpeed()
     {
-        speed *= 1.15f;
+        speed *= 1.05f;
         if (speed >= maxSpeed)
         {
             speed = maxSpeed;
