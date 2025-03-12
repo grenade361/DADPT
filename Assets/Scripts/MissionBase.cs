@@ -1,7 +1,13 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
+
+
+public enum MissionType
+{
+    SingleRun, TotalMeter, FishesSingleRun
+}
 public abstract class MissionBase : MonoBehaviour
 {
     public int max;
@@ -9,7 +15,7 @@ public abstract class MissionBase : MonoBehaviour
     public int reward;
     public Player player;
     public int currentProgress;
-
+    public MissionType missionType;
 
     public abstract void Created();
     public abstract string GetMissionDescription();
@@ -40,6 +46,7 @@ public class SingleRun : MissionBase
 {
     public override void Created()
     {
+        missionType = MissionType.SingleRun;
         int[] maxValues = { 1000, 2000, 3000, 4000 };
         int randomMaxValue = Random.Range(0, maxValues.Length);
         int[] rewards = { 100, 200, 300, 400 };
@@ -50,7 +57,7 @@ public class SingleRun : MissionBase
 
     public override string GetMissionDescription()
     {
-        return " Corra " + max + "m";
+        return " Chạy " + max + "m";
     }
 
     public override void RunStart()
@@ -72,6 +79,7 @@ public class TotalMeters : MissionBase
 {
     public override void Created()
     {
+        missionType = MissionType.TotalMeter;
         int[] maxValues = { 10000, 20000, 30000, 40000 };
         int randomMaxValue = Random.Range(0, maxValues.Length);
         int[] rewards = { 1000, 2000, 3000, 4000 };
@@ -82,7 +90,7 @@ public class TotalMeters : MissionBase
 
     public override string GetMissionDescription()
     {
-        return "Corra " + max + "2";
+        return "Chạy " + max + "m";
     }
 
     public override void RunStart()
@@ -105,6 +113,7 @@ public class FishesSingleRun : MissionBase
 {
     public override void Created()
     {
+        missionType = MissionType.FishesSingleRun;
         int[] maxValues = { 100, 200, 300, 400, 500 };
         int randomMaxValue = Random.Range(0, maxValues.Length);
         int[] rewards = { 100, 200, 300, 400, 500 };
@@ -115,7 +124,7 @@ public class FishesSingleRun : MissionBase
 
     public override string GetMissionDescription()
     {
-        return "Colete " + max + "3";
+        return "Thu thập " + max + "Coin";
     }
 
     public override void RunStart()
