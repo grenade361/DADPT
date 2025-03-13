@@ -6,6 +6,7 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using Random = UnityEngine.Random;
+using System.Runtime.CompilerServices;
 
 [Serializable]
 public class PlayerData
@@ -16,6 +17,8 @@ public class PlayerData
     public int[] currentProgress;
     public int[] reward;
     public string[] missionType;
+    public int[] characterCost;
+
 
 }
 
@@ -24,6 +27,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     public static GameManager gm;
     public int coins;
+    public int[] characterCost;
+    public int characterIndex;
+
     private MissionBase[] missions;
     private string filePath;
     private void Awake()
@@ -101,6 +107,12 @@ public class GameManager : MonoBehaviour
             data.currentProgress[i] = missions[i].currentProgress;
             data.reward[i] = missions[i].reward;
             data.missionType[i] = missions[i].missionType.ToString();
+            data.characterCost = new int[characterCost.Length];
+        }
+
+        for (int i = 0;i < characterCost.Length;i++)
+        {
+            data.characterCost[i] = characterCost[i];
         }
 
 
@@ -143,8 +155,14 @@ public class GameManager : MonoBehaviour
                 missions[i].progress = data.progress[i];
                 missions[i].currentProgress = data.currentProgress[i];
                 missions[i].reward = data.reward[i];
+
             }
+
+        for (int i = 0; i < data.characterCost.Length; i++) 
+        {
+            characterCost[i] = data.characterCost[i];
         }
+     }
 
 
 
@@ -160,8 +178,9 @@ public class GameManager : MonoBehaviour
         
     }
 
-    public void StartRun()
+    public void StartRun( int charIndex)
     {
+        characterIndex = charIndex;
         SceneManager.LoadScene("Game");
 
     }
@@ -178,7 +197,7 @@ public class GameManager : MonoBehaviour
         return missions[index];
     }
 
-    public void StartMissions()
+    public void StartMissions()                    
     {
         for (int i = 0; i < 2; i++)
         {
@@ -186,5 +205,34 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void GenerateMission(int i)
+    {
+        Destroy(missions[i].gameObject);
 
+        GameObject newMission = new GameObject("Mission" + i);
+        newMission.transform.SetParent(transform);
+        MissionType[] missionType = { MissionType.SingleRun, MissionType.TotalMeter, MissionType.FishesSingleRun };
+        int randomType = Random.Range(0, missionType.Length);
+        if (randomType == (int)MissionType.SingleRun)
+        {
+            missions[i] = newMission.AddComponent<SingleRun>();
+
+        }
+        else if (randomType == (int)MissionType.TotalMeter)
+        {
+            missions[i] = newMission.AddComponent<TotalMeters>();
+
+        }
+        else if (randomType == (int)MissionType.FishesSingleRun)
+        {
+            missions[i] = newMission.AddComponent<FishesSingleRun>();
+
+        }
+        missions[i].Created();
+
+        FindObjectOfType<Menu>().SetMission();
+    }
+
+
+    
 }
